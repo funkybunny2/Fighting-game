@@ -12,7 +12,7 @@ class Sprite {
         this.position = position;
         this.velocity = velocity;
         this.height = 150;
-        this.weight = 50;
+        this.width = 50;
         this.lastKey;
         this.attackBox = {
             position: this.position ,
@@ -20,11 +20,12 @@ class Sprite {
             height: 50
         }
         this.color = color;
+        this.isAttacking;
     }
 
     draw() {
         c.fillStyle = this.color;
-        c.fillRect(this.position.x,this.position.y, 50, 150 )
+        c.fillRect(this.position.x,this.position.y, this.width, this.height )
 
         //attack box
         c.fillStyle = 'white'
@@ -42,6 +43,13 @@ class Sprite {
         }else{
             this.velocity.y += gravity;
         }
+    }
+
+    attack(){
+        this.isAttacking = true;
+        setTimeout(()=>{
+            this.isAttacking = false
+        }, 100);
     }
 }
 
@@ -82,6 +90,16 @@ if(keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft'){
 }else if(keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight'){
     enemy.velocity.x = 1;
 }
+
+//detect collolision
+if(player.attackBox.position.x + player.attackBox.width >= enemy.position.x 
+    && player.attackBox.position.x <= enemy.position.x + enemy.width 
+    && player.attackBox.position.y + player.attackBox.height >= enemy.position.y 
+    && player.attackBox.position.y <= enemy.position.y + enemy.height){
+    console.log("going");
+
+}
+
 }
 
 animate();
