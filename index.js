@@ -8,19 +8,24 @@ c.fillRect(0,0,canvas.width, canvas.height);
 const gravity = 0.1;
 
 class Sprite {
-    constructor({position, velocity, color = 'red'}) {
+    constructor({position, velocity, color = 'red', offset}) {
         this.position = position;
         this.velocity = velocity;
+        this.health = 100;
         this.height = 150;
         this.width = 50;
         this.lastKey;
         this.attackBox = {
-            position: this.position ,
+            position: {
+                x: this.position.x,
+                y: this.position.y
+            },
+            offset,
             width: 100,
             height: 50
         }
         this.color = color;
-        this.isAttacking;
+        this.isAttacking = false;
     }
 
     draw() {
@@ -28,12 +33,15 @@ class Sprite {
         c.fillRect(this.position.x,this.position.y, this.width, this.height )
 
         //attack box
+        if(this.isAttacking){
         c.fillStyle = 'white'
-        c.fillRect(this.attackBox.position.x,this.attackBox.position.y,this.attackBox.width,this.attackBox.height);
+        c.fillRect(this.attackBox.position.x,this.attackBox.position.y,this.attackBox.width,this.attackBox.height);}
     }
 
     update() {
         this.draw()
+        this.attackBox.position.x = this.position.x - this.attackBox.offset.x;
+        this.attackBox.position.y = this.position.y;
         
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
@@ -53,11 +61,11 @@ class Sprite {
     }
 }
 
-const player = new Sprite({position:{x:0, y:0 },velocity: {x:0, y:0} });
+const player = new Sprite({position:{x:0, y:0 },velocity: {x:0, y:0} ,offset: {x:0,y: 0}});
 
 player.draw();
 
-const enemy = new Sprite({position:{x:400, y:100 },velocity: {x:0, y:0} ,color:'blue'});
+const enemy = new Sprite({position:{x:400, y:100 },velocity: {x:0, y:0} ,color:'blue',offset: {x:50,y: 0}});
 
 enemy.draw();
 
@@ -68,6 +76,12 @@ const keys = {
     ArrowLeft: {pressed: false}
 }
 
+function rectangularCollision({rectangle1, rectangle2}){
+    return (rectangle1.attackBox.position.x + rectangle1.attackBox.width >= rectangle2.position.x 
+    && rectangle1.attackBox.position.x <= rectangle2.position.x + rectangle2.width 
+    && rectangle1.attackBox.position.y + rectangle1.attackBox.height >= rectangle2.position.y 
+    && rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height)
+}
 
 function animate(){
 window.requestAnimationFrame(animate)
@@ -92,13 +106,21 @@ if(keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft'){
 }
 
 //detect collolision
-if(player.attackBox.position.x + player.attackBox.width >= enemy.position.x 
-    && player.attackBox.position.x <= enemy.position.x + enemy.width 
-    && player.attackBox.position.y + player.attackBox.height >= enemy.position.y 
-    && player.attackBox.position.y <= enemy.position.y + enemy.height){
-    console.log("going");
-
+if(rectangularCollision({rectangle1: player,
+rectangle2: enemy})
+    && player.isAttacking){
+    player.isAttacking = false;
+    enemy.health -= 20;
+    document.querySelector('#enemyHealth').style.width = enemy.health + '%'
 }
+
+if(rectangularCollision({rectangle1: enemy,
+    rectangle2: player})
+        && enemy.isAttacking){
+        enemy.isAttacking = false;
+        player.health -= 20;
+    document.querySelector('#playerHealth').style.width = player.health + '%'
+    }
 
 }
 
@@ -117,6 +139,9 @@ window.addEventListener('keydown', (event) => {
         case 'w':
             player.velocity.y = -10;
         break;
+        case 'y': 
+            player.attack();
+            break;
 
 
         case 'ArrowRight':
@@ -130,6 +155,9 @@ window.addEventListener('keydown', (event) => {
         case 'ArrowUp':
             enemy.velocity.y = -10;
         break;
+        case 'o': 
+            enemy.attack();
+            break;
     }
 })
 
