@@ -10,11 +10,15 @@ const gravity = 0.1;
 const background = new Sprite({position: {x: 0, y: 0}, imageSrc: './img/background_layer_1.png'})
 const background2 = new Sprite({position: {x: 0, y: 0}, imageSrc: './img/background_layer_2.png'})
 const background3 = new Sprite({position: {x: 0, y: 0}, imageSrc: './img/background_layer_3.png'})
-const player = new Fighter({position:{x:0, y:0 },velocity: {x:0, y:0} ,offset: {x:0,y: 0}});
+const player = new Fighter({position:{x:0, y:0 },velocity: {x:0, y:0} ,imageSrc: './img/player/Idle.png',scale: 3.5,framesMax: 8,offset:{x:50,y:220},
+sprites:{idle: {imageSrc: './img/player/Idle.png',framesMax:8},run: {imageSrc: './img/player/Run.png',framesMax:8},
+jump: {imageSrc:'./img/player/Jump.png',framesMax:2},fall: {imageSrc:'./img/player/Fall.png',framesMax: 2}, attack1: {imageSrc:'./img/player/Attack1.png', framesMax: 4}}});
 
 player.draw();
 
-const enemy = new Fighter({position:{x:400, y:100 },velocity: {x:0, y:0} ,color:'blue',offset: {x:50,y: 0}});
+const enemy = new Fighter({position:{x:400, y:100 },velocity: {x:0, y:0} ,imageSrc: './img/Enemy/Idle.png',scale: 3.5,framesMax: 10,offset:{x:50,y:153},
+sprites:{idle: {imageSrc: './img/Enemy/Idle.png',framesMax:10},run: {imageSrc: './img/Enemy/Run.png',framesMax:6},
+jump: {imageSrc:'./img/Enemy/Jump.png',framesMax:2}, fall: {imageSrc:'./img/Enemy/Fall.png',framesMax: 2}, attack1: {imageSrc:'./img/Enemy/Attack1.png', framesMax: 4}}});
 
 enemy.draw();
 
@@ -41,18 +45,43 @@ enemy.update();
 
 player.velocity.x = 0;
 enemy.velocity.x = 0;
+
+
 if(keys.a.pressed && player.lastKey === 'a'){
     player.velocity.x = -1
+    player.switchSprite('run');
 }else if(keys.d.pressed && player.lastKey === 'd'){
     player.velocity.x = 1;
+    player.switchSprite('run');
+}else{
+    player.switchSprite('idle');
 }
+
+if(player.velocity.y<0){
+player.switchSprite('jump');
+}else if(player.velocity.y > 0){
+    player.switchSprite('fall')
+}
+
+
 
 
 if(keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft'){
     enemy.velocity.x = -1
+    enemy.switchSprite('run')
 }else if(keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight'){
     enemy.velocity.x = 1;
+    enemy.switchSprite('run')
+
+}else{
+    enemy.switchSprite('idle')
 }
+
+if(enemy.velocity.y<0){
+    enemy.switchSprite('jump');
+    }else if(enemy.velocity.y > 0){
+        enemy.switchSprite('fall')
+    }
 
 //detect collolision
 if(rectangularCollision({rectangle1: player,
@@ -91,7 +120,7 @@ window.addEventListener('keydown', (event) => {
             player.lastKey = 'a';
         break;
         case 'w':
-            player.velocity.y = -10;
+            player.velocity.y = -6;
         break;
         case 'y': 
             player.attack();
@@ -107,7 +136,7 @@ window.addEventListener('keydown', (event) => {
             enemy.lastKey = 'ArrowLeft';
         break;
         case 'ArrowUp':
-            enemy.velocity.y = -10;
+            enemy.velocity.y = -6;
         break;
         case 'o': 
             enemy.attack();
