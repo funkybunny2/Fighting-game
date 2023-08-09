@@ -12,13 +12,15 @@ const background2 = new Sprite({position: {x: 0, y: 0}, imageSrc: './img/backgro
 const background3 = new Sprite({position: {x: 0, y: 0}, imageSrc: './img/background_layer_3.png'})
 const player = new Fighter({position:{x:0, y:0 },velocity: {x:0, y:0} ,imageSrc: './img/player/Idle.png',scale: 3.5,framesMax: 8,offset:{x:50,y:220},
 sprites:{idle: {imageSrc: './img/player/Idle.png',framesMax:8},run: {imageSrc: './img/player/Run.png',framesMax:8},
-jump: {imageSrc:'./img/player/Jump.png',framesMax:2},fall: {imageSrc:'./img/player/Fall.png',framesMax: 2}, attack1: {imageSrc:'./img/player/Attack1.png', framesMax: 4}}});
+jump: {imageSrc:'./img/player/Jump.png',framesMax:2},fall: {imageSrc:'./img/player/Fall.png',framesMax: 2}, 
+attack1: {imageSrc:'./img/player/Attack1.png', framesMax: 4}},attackBox:{offset:{x:270,y:20},width: 200, height: 50}});
 
 player.draw();
 
 const enemy = new Fighter({position:{x:400, y:100 },velocity: {x:0, y:0} ,imageSrc: './img/Enemy/Idle.png',scale: 3.5,framesMax: 10,offset:{x:50,y:153},
 sprites:{idle: {imageSrc: './img/Enemy/Idle.png',framesMax:10},run: {imageSrc: './img/Enemy/Run.png',framesMax:6},
-jump: {imageSrc:'./img/Enemy/Jump.png',framesMax:2}, fall: {imageSrc:'./img/Enemy/Fall.png',framesMax: 2}, attack1: {imageSrc:'./img/Enemy/Attack1.png', framesMax: 4}}});
+jump: {imageSrc:'./img/Enemy/Jump.png',framesMax:2}, fall: {imageSrc:'./img/Enemy/Fall.png',framesMax: 2}, 
+attack1: {imageSrc:'./img/Enemy/Attack1.png', framesMax: 4}},attackBox:{offset:{x:-20,y:20},width: 170, height: 50}});
 
 enemy.draw();
 
@@ -86,19 +88,29 @@ if(enemy.velocity.y<0){
 //detect collolision
 if(rectangularCollision({rectangle1: player,
 rectangle2: enemy})
-    && player.isAttacking){
+    && player.isAttacking
+    &&player.framesCurrent===2){
     player.isAttacking = false;
     enemy.health -= 20;
     document.querySelector('#enemyHealth').style.width = enemy.health + '%'
 }
 
+if(player.isAttacking && player.framesCurrent === 2){
+    player.isAttacking = false;
+}
+
 if(rectangularCollision({rectangle1: enemy,
     rectangle2: player})
-        && enemy.isAttacking){
+        && enemy.isAttacking
+        &&enemy.framesCurrent===1){
         enemy.isAttacking = false;
         player.health -= 20;
     document.querySelector('#playerHealth').style.width = player.health + '%'
-    }
+}
+
+if(enemy.isAttacking && enemy.framesCurrent === 1){
+        enemy.isAttacking = false;
+}
 
 if(enemy.health<= 0|| player.health <= 0){
 determineWinner({player,enemy},timerId)
